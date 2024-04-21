@@ -120,7 +120,6 @@ celerybeat.pid
 *.sage.py
 
 # Environments
-.env
 .venv
 env/
 venv/
@@ -160,3 +159,5 @@ cython_debug/
 
 # MacOS
 .DS_Store
+config.bat
+node_modules
