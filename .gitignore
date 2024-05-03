@@ -120,7 +120,6 @@ celerybeat.pid
 *.sage.py
 
 # Environments
-.env
 .venv
 env/
 venv/
@@ -161,3 +160,5 @@ cython_debug/
 
 # Ruff
 .ruff_cache
+config.bat
+node_modules
