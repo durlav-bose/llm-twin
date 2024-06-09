@@ -120,7 +120,6 @@ celerybeat.pid
 *.sage.py
 
 # Environments
-.env
 .venv
 env/
 venv/
@@ -167,3 +166,5 @@ output
 .cache
 training_pipeline_output
 mistral_instruct_generation
+config.bat
+node_modules
