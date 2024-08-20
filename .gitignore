@@ -120,7 +120,6 @@ celerybeat.pid
 *.sage.py
 
 # Environments
-.env
 .venv
 env/
 venv/
@@ -173,3 +172,5 @@ training_pipeline_output
 mistral_instruct_generation
 cache
 rabbitmq
+config.bat
+node_modules
