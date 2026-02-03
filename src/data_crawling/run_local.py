@@ -30,7 +30,7 @@ if __name__ == "__main__":
     
     event = {
         "user": "Paul Iusztin",
-        "link": "https://medium.com/decodingml/an-end-to-end-framework-for-production-ready-llm-systems-by-building-your-llm-twin-2cc6bb01141f"
+        "link": "https://medium.com/decodingai/your-content-is-gold-i-turned-3-years-of-blog-posts-into-an-llm-training-d19c265bdd6e"
     }
     
     print(f"\nCrawling: {event['link']}")
@@ -46,7 +46,7 @@ if __name__ == "__main__":
     
     event = {
         "user": "Paul Iusztin",
-        "link": "https://github.com/decodingml/llm-twin-course"
+        "link": "https://github.com/decodingai-magazine/llm-twin-course"
     }
     
     print(f"\nCrawling: {event['link']}")

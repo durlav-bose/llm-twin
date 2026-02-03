@@ -18,8 +18,28 @@ logger = logger_utils.get_logger(__name__)
 class LLMTwin:
     def __init__(self, mock: bool = False) -> None:
         self._mock = mock
-        self._llm_endpoint = self.build_sagemaker_predictor()
+        self._use_local_llm = settings.USE_LOCAL_LLM
+        
+        if self._use_local_llm:
+            logger.info("Using local LLM (OpenAI) instead of SageMaker")
+            self._llm_endpoint = None
+            self._setup_openai()
+        else:
+            logger.info("Using SageMaker endpoint for LLM")
+            self._llm_endpoint = self.build_sagemaker_predictor()
+            
         self.prompt_template_builder = InferenceTemplate()
+    
+    def _setup_openai(self):
+        """Setup OpenAI client for local development."""
+        try:
+            from openai import OpenAI
+            self._openai_client = OpenAI(api_key=settings.OPENAI_API_KEY)
+            logger.info(f"OpenAI client initialized with model: {settings.OPENAI_MODEL_ID}")
+        except Exception as e:
+            logger.error(f"Failed to initialize OpenAI client: {e}")
+            logger.warning("Falling back to mock mode")
+            self._mock = True
 
     def build_sagemaker_predictor(self) -> HuggingFacePredictor:
         return HuggingFacePredictor(
@@ -106,22 +126,38 @@ class LLMTwin:
     def call_llm_service(self, messages: list[dict[str, str]]) -> str:
         if self._mock is True:
             logger.warning("Mocking LLM service call.")
-
             return "Mocked answer."
 
-        answer = self._llm_endpoint.predict(
-            data={
-                "messages": messages,
-                "parameters": {
-                    "max_new_tokens": settings.MAX_TOTAL_TOKENS
-                    - settings.MAX_INPUT_TOKENS,
-                    "temperature": 0.01,
-                    "top_p": 0.6,
-                    "stop": ["<|eot_id|>"],
-                    "return_full_text": False,
-                },
-            }
-        )
-        answer = answer["choices"][0]["message"]["content"].strip()
-
-        return answer
+        if self._use_local_llm:
+            # Use OpenAI for local development
+            try:
+                response = self._openai_client.chat.completions.create(
+                    model=settings.OPENAI_MODEL_ID,
+                    messages=messages,
+                    max_tokens=settings.MAX_TOTAL_TOKENS - settings.MAX_INPUT_TOKENS,
+                    temperature=0.01,
+                    top_p=0.6,
+                )
+                answer = response.choices[0].message.content.strip()
+                logger.info(f"OpenAI response received ({response.usage.total_tokens} tokens)")
+                return answer
+            except Exception as e:
+                logger.error(f"OpenAI API call failed: {e}")
+                return "Error: Failed to get response from OpenAI. Check your API key and quota."
+        else:
+            # Use SageMaker endpoint (production)
+            answer = self._llm_endpoint.predict(
+                data={
+                    "messages": messages,
+                    "parameters": {
+                        "max_new_tokens": settings.MAX_TOTAL_TOKENS
+                        - settings.MAX_INPUT_TOKENS,
+                        "temperature": 0.01,
+                        "top_p": 0.6,
+                        "stop": ["<|eot_id|>"],
+                        "return_full_text": False,
+                    },
+                }
+            )
+            answer = answer["choices"][0]["message"]["content"].strip()
+            return answer

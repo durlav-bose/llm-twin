@@ -6,7 +6,7 @@ ROOT_DIR = str(Path(__file__).parent.parent.parent)
 
 
 class Settings(BaseSettings):
-    model_config = SettingsConfigDict(env_file=ROOT_DIR, env_file_encoding="utf-8")
+    model_config = SettingsConfigDict(env_file=f"{ROOT_DIR}/.env", env_file_encoding="utf-8")
 
     # Embeddings config
     EMBEDDING_MODEL_ID: str = "BAAI/bge-small-en-v1.5"
@@ -33,9 +33,9 @@ class Settings(BaseSettings):
     KEEP_TOP_K: int = 5
     EXPAND_N_QUERY: int = 5
 
-    # CometML config
-    COMET_API_KEY: str
-    COMET_WORKSPACE: str
+    # CometML config (optional for local development)
+    COMET_API_KEY: str | None = None
+    COMET_WORKSPACE: str | None = None
     COMET_PROJECT: str = "llm-twin"
 
     # LLM Model config
@@ -52,6 +52,15 @@ class Settings(BaseSettings):
     AWS_ACCESS_KEY: str | None = None
     AWS_SECRET_KEY: str | None = None
     AWS_ARN_ROLE: str | None = None
+
+    # Local Development
+    USE_LOCAL_LLM: bool = True  # Use OpenAI instead of SageMaker for local dev
+
+    def patch_localhost(self) -> None:
+        """Patch settings for local development outside Docker."""
+        self.QDRANT_DATABASE_HOST = "localhost"
+        self.QDRANT_DATABASE_PORT = 6333
+        self.USE_LOCAL_LLM = True  # Force local LLM for development
 
 
 settings = Settings()
