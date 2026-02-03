@@ -19,5 +19,11 @@ class Settings(BaseSettings):
     RABBITMQ_DEFAULT_PASSWORD: str = "guest"
     RABBITMQ_QUEUE_NAME: str = "default"
 
+    def patch_localhost(self) -> None:
+        """Patch settings for local development outside Docker."""
+        self.MONGO_DATABASE_HOST = "mongodb://localhost:30001,localhost:30002,localhost:30003/?replicaSet=my-replica-set"
+        self.RABBITMQ_HOST = "localhost"
+        self.RABBITMQ_PORT = 5673  # Docker maps 5672 to 5673
+
 
 settings = Settings()

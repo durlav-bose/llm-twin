@@ -39,5 +39,12 @@ class Settings(BaseSettings):
     QDRANT_CLOUD_URL: str | None = None
     QDRANT_APIKEY: str | None = None
 
+    def patch_localhost(self) -> None:
+        """Patch settings for local development outside Docker."""
+        self.RABBITMQ_HOST = "localhost"
+        self.RABBITMQ_PORT = 5673  # Docker maps 5672 to 5673
+        self.QDRANT_DATABASE_HOST = "localhost"
+        self.QDRANT_DATABASE_PORT = 6333
+
 
 settings = Settings()
